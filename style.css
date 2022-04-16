@@ -2,12 +2,18 @@ html {
     user-select: none;
 }
 
+body {
+    background-color:#ccc;
+}
+
 .drop {
     position: relative;
     margin: 0 auto;
     border: 1px solid #000;
-    width: 400px;
-    height: 700px;
+}
+
+.drop + .drop {
+    margin-top: 20px;
 }
 
 .drop .img_bg {
