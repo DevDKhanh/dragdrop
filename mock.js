@@ -14,11 +14,6 @@ export const list = [
         height: 700,
         width: 500,
     },
-    {
-        link: 'https://luatquanghuy.vn/wp-content/uploads/hop-dong-dien-tu-image-01.webp',
-        height: 700,
-        width: 500,
-    },
 ];
 
 export const listInput = [
@@ -28,7 +23,7 @@ export const listInput = [
         minHeight: 80,
         defaultWidth: 150,
         defaultHeight: 80,
-        style:"style_1",
+        style: 'style_1',
         html: `
             <div
                 draggable="true"
@@ -48,7 +43,7 @@ export const listInput = [
         minHeight: 50,
         defaultWidth: 70,
         defaultHeight: 70,
-        style:"style_2",
+        style: 'style_2',
         html: `
         <img
             draggable="true"

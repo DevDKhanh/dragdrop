@@ -1,6 +1,6 @@
 'use strict';
 
-import {list, listInput} from './mock.js'
+import { list, listInput } from './mock.js';
 
 (() => {
     const $ = document.querySelector.bind(document);
@@ -10,7 +10,7 @@ import {list, listInput} from './mock.js'
 
     let infoItem = null;
     let isResize = false;
-    let stateItem = {};//==> Chứa các thông tin các phần tử khi được thêm vào văn bản
+    let stateItem = {}; //==> Chứa các thông tin các phần tử khi được thêm vào văn bản
 
     //**********************
     //* Hàm này sẽ lấy ra các item đã được thêm vào DOM
@@ -20,7 +20,7 @@ import {list, listInput} from './mock.js'
         const dropItems = $$('.item_drop');
 
         dropItems.forEach((el) => {
-            const {page, id} = el.dataset;
+            const { page, id } = el.dataset;
 
             const item = stateItem[`${page}`].filter((item) => item.id === +id);
             const containerPage = $(`#page${page}`);
@@ -28,11 +28,12 @@ import {list, listInput} from './mock.js'
             /*---------- Xóa phần tử ----------*/
             el.addEventListener('click', function (e) {
                 if (e.target.matches('.close')) {
-                    const newSate = stateItem[`${page}`].filter((item) => item.id !== +id);
+                    const newSate = stateItem[`${page}`].filter(
+                        (item) => item.id !== +id
+                    );
                     updateState(newSate, page);
                 }
             });
-
 
             el.addEventListener('mousedown', function (e) {
                 el.style.zIndex = '10';
@@ -44,8 +45,8 @@ import {list, listInput} from './mock.js'
                 let top = el.offsetTop;
 
                 /*---------- chiều rộng và chiều cao phần tử ----------*/
-                const offsetHeight  = item[0].height;
-                const offsetWidth  = item[0].width;
+                const offsetHeight = item[0].height;
+                const offsetWidth = item[0].width;
 
                 /*---------- Vị trí hiện tại của con trỏ ----------*/
                 let mouseX = e.clientX;
@@ -73,8 +74,8 @@ import {list, listInput} from './mock.js'
                         el.style.top = Y + 'px';
 
                         const newSate = stateItem[`${page}`].map((item) => {
-                            if(item.id === +id) {
-                                return {...item, X, Y};
+                            if (item.id === +id) {
+                                return { ...item, X, Y };
                             }
                             return item;
                         });
@@ -82,11 +83,13 @@ import {list, listInput} from './mock.js'
                     } else {
                         el.classList.add('show');
 
-                        const {type} = el.dataset;
+                        const { type } = el.dataset;
                         const startX = e.clientX;
                         const startY = e.clientY;
 
-                        const infoItem = listInput.filter((item)=>item.type === type);
+                        const infoItem = listInput.filter(
+                            (item) => item.type === type
+                        );
 
                         const startWidth = parseInt(
                             document.defaultView.getComputedStyle(el).width,
@@ -98,20 +101,27 @@ import {list, listInput} from './mock.js'
                         );
 
                         document.onmousemove = (e) => {
-                            const {WIDTH, HEIGHT} = doDrag(
+                            const { WIDTH, HEIGHT } = doDrag(
                                 e,
                                 { width: startWidth, height: startHeight },
                                 { x: startX, y: startY },
-                                { minWidth: infoItem[0].minWidth, minHeight: infoItem[0].minHeight},
-                                { maxWidth: maxX, maxHeight: maxY},
-                                { left: X, top: Y},
+                                {
+                                    minWidth: infoItem[0].minWidth,
+                                    minHeight: infoItem[0].minHeight,
+                                },
+                                { maxWidth: maxX, maxHeight: maxY },
+                                { left: X, top: Y }
                             );
 
                             el.style.width = WIDTH + 'px';
                             el.style.height = HEIGHT + 'px';
                             const newSate = stateItem[`${page}`].map((item) => {
-                                if(item.id === +id) {
-                                    return {...item, width: WIDTH, height: HEIGHT};
+                                if (item.id === +id) {
+                                    return {
+                                        ...item,
+                                        width: WIDTH,
+                                        height: HEIGHT,
+                                    };
                                 }
                                 return item;
                             });
@@ -136,38 +146,56 @@ import {list, listInput} from './mock.js'
     //* Hàm này sẽ hiển thị các item bên thanh tab
     //**********************
     function renderItem() {
-        const container = $('.main_input')
-        container.innerHTML = listInput.map(item => item.html).join('')
-    };
+        const container = $('.main_input');
+        container.innerHTML = listInput.map((item) => item.html).join('');
+    }
 
     //**********************
-    //* Hàm này hiển thị các trang PDF 
+    //* Hàm này hiển thị các trang PDF
     //**********************
     function renderListFiles() {
-        mainList.innerHTML = list.map((file, index)=>{
-            return (`
-                <div 
-                    ondragover="return false" 
+        pdfjsLib.getDocument('./test.pdf').promise.then((doc) => {
+            if (doc) {
+                let htmls = '';
+                for (let i = 1; i <= doc._pdfInfo.numPages; i++) {
+                    htmls += `<div
+                    ondragover="return false"
                     class="drop"
-                    style="width: ${file.width}px; height: ${file.height}px; position: relative" 
+                    style="width: 700px; position: relative"
                 >
-                    <img
-                        class="img_bg"
-                        alt="abc"
-                        src="${file.link}"
-                    />
-                    <div 
-                        ondragover="return false" 
-                        id="page${index+1}" 
-                        class="main_drop" 
-                        data-index="${index+1}"
-                        style="width: ${file.width}px; height: ${file.height}px; position: absolute; top: 0; left: 0;" >
+                    <canvas id="my_canvas_${i}"></canvas>
+                    <div
+                        ondragover="return false"
+                        id="page${i}"
+                        class="main_drop"
+                        data-index="${i}"
+                        style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;" >
                     </div>
-                </div> 
-            `);
-        }).join('');
+                </div> `;
+                }
+                mainList.innerHTML = htmls;
 
-    };
+                for (let i = 1; i <= doc._pdfInfo.numPages; i++) {
+                    doc.getPage(i).then((page) => {
+                        if (page) {
+                            var myCanvas = $(`#my_canvas_${i}`);
+                            var context = myCanvas.getContext('2d');
+                            var viewport = page.getViewport(3);
+                            myCanvas.width = viewport.width;
+                            myCanvas.height = viewport.height;
+                            page.render({
+                                canvasContext: context,
+                                viewport: viewport,
+                            });
+                        }
+                    });
+                }
+
+                /*---------- Thêm sự kiện kéo, thả cho từng trang  ----------*/
+                handlerDrop();
+            }
+        });
+    }
 
     //**********************
     //* Hàm này sẽ xử lí việc người dùng kéo, thả để thêm item vào vùng chứa văn bản
@@ -176,18 +204,18 @@ import {list, listInput} from './mock.js'
         const listContainer = $$('.main_drop');
 
         function onDrop(ev, pageCurrent) {
-            const {layerX, layerY} = ev;
+            const { layerX, layerY } = ev;
 
             addItem(pageCurrent, layerX, layerY);
             ev.stopPropagation();
             return false;
         }
 
-        listContainer.forEach((el)=> {
+        listContainer.forEach((el) => {
             const pageCurrent = el.dataset.index;
-            el.addEventListener('drop', (ev) => onDrop(ev, pageCurrent))
+            el.addEventListener('drop', (ev) => onDrop(ev, pageCurrent));
         });
-    };
+    }
 
     //**********************
     //* Hàm này sẽ thêm các phần tử vào văn bản
@@ -198,8 +226,9 @@ import {list, listInput} from './mock.js'
         const page = $(`#page${index}`);
 
         const id = new Date().getTime();
-        const {clientHeight, clientWidth} = page;
-        const {type, style, htmlInsert, defaultWidth, defaultHeight} = infoItem;
+        const { clientHeight, clientWidth } = page;
+        const { type, style, htmlInsert, defaultWidth, defaultHeight } =
+            infoItem;
 
         const top = y - defaultHeight / 2;
         const left = x - defaultWidth / 2;
@@ -207,7 +236,7 @@ import {list, listInput} from './mock.js'
         const X = getXY(left, clientWidth - defaultWidth);
         const Y = getXY(top, clientHeight - defaultHeight);
 
-        !stateItem[`${index}`] ? stateItem[`${index}`] = []:null;
+        !stateItem[`${index}`] ? (stateItem[`${index}`] = []) : null;
         stateItem[`${index}`].push({
             id,
             X,
@@ -220,13 +249,13 @@ import {list, listInput} from './mock.js'
             style,
         });
         renderItemOnPage();
-    };
+    }
 
     function renderItemOnPage() {
-        for(let i in stateItem) {
+        for (let i in stateItem) {
             const html = stateItem[i].map((item) => {
                 /*---------- Tạo thẻ mới để chứa item ----------*/
-                return (`
+                return `
                     <div 
                         class="${item.style} item_drop" 
                         data-id="${item.id}" 
@@ -249,7 +278,7 @@ import {list, listInput} from './mock.js'
                         >
                         </svg>
                         ${item.htmlInsert}
-                    </div>`);
+                    </div>`;
             });
 
             /*---------- Thêm item mới vào DOM ----------*/
@@ -271,80 +300,77 @@ import {list, listInput} from './mock.js'
             const info = listInput.filter((item) => item.type === type);
 
             infoItem = info[0];
-        };
+        }
 
         items.forEach((el) =>
             el.addEventListener('drag', function () {
                 createItem(el);
             })
         );
-    };
+    }
 
-    setInterval(()=>{
+    setInterval(() => {
         console.log(stateItem);
-    }, 2000)
+    }, 2000);
 
     //**********************
     //* Site function
     //**********************
-    function updateState (newSate, page) {
+    function updateState(newSate, page) {
         stateItem[`${page}`] = newSate;
         renderItemOnPage();
     }
 
-    function doDrag(e, startSize, start, minSize, maxSize,coordinates) {
-        
+    function doDrag(e, startSize, start, minSize, maxSize, coordinates) {
         const width = startSize.width + e.clientX - start.x;
         const height = startSize.height + e.clientY - start.y;
 
-        const WIDTH = coordinates.left + width < maxSize.maxWidth ? 
-                        getWidthHeight(minSize.minWidth, width):
-                        width - coordinates.left - (width - maxSize.maxWidth);
+        const WIDTH =
+            coordinates.left + width < maxSize.maxWidth
+                ? getWidthHeight(minSize.minWidth, width)
+                : width - coordinates.left - (width - maxSize.maxWidth);
 
-        const HEIGHT = coordinates.top + height < maxSize.maxHeight ? 
-                        getWidthHeight(minSize.minHeight, height):
-                        height - coordinates.top - (height - maxSize.maxHeight);
+        const HEIGHT =
+            coordinates.top + height < maxSize.maxHeight
+                ? getWidthHeight(minSize.minHeight, height)
+                : height - coordinates.top - (height - maxSize.maxHeight);
 
-        return {WIDTH, HEIGHT};
+        return { WIDTH, HEIGHT };
     }
 
     function getWidthHeight(minSize, currentSize) {
-        if(currentSize <= minSize) {
+        if (currentSize <= minSize) {
             return minSize;
         } else {
             return currentSize;
-        };
+        }
     }
 
-    function getXY(coordinates, max){
-        if(coordinates < 0) {
-            return 0
+    function getXY(coordinates, max) {
+        if (coordinates < 0) {
+            return 0;
         } else {
-            if(coordinates >= max) {
+            if (coordinates >= max) {
                 return max;
             } else {
-                return coordinates
+                return coordinates;
             }
         }
     }
 
-    function start() {
-
+    async function start() {
         /*---------- Hiển thị các file văn bản ----------*/
         renderListFiles();
 
         /*---------- Hiển thị list item thanh tab ----------*/
         renderItem();
 
-        /*---------- Thêm sự kiện kéo, thả cho từng trang  ----------*/
-        handlerDrop();
-
         /*---------- Lấy các phần tử đã được thêm vào vùng chưa văn bản, xử lí kéo thả trong vùng chứa ----------*/
         getItemDrop();
 
         /*---------- Xử lí tạo mới item ----------*/
         handlerCreateItem();
-    };
+    }
 
     start();
 })();
