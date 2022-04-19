@@ -1,9 +1,6 @@
 'use strict';
 const ddjs = (idContainer, listInput) => {
-    const $ = document.querySelector.bind(document);
-    const $$ = document.querySelectorAll.bind(document);
-
-    const mainList = $(`#${idContainer}`);
+    const mainList = document.querySelector(`#${idContainer}`);
 
     let infoItem = null;
     let isResize = false;
@@ -14,13 +11,13 @@ const ddjs = (idContainer, listInput) => {
     //* Xử lí di chuyển vị trí, kích thước các item trong vùng chưa văn bản
     //**********************
     function getItemDrop() {
-        const dropItems = $$('.item_drop');
+        const dropItems = document.querySelectorAll('.item_drop');
 
         dropItems.forEach((el) => {
             const { page, id } = el.dataset;
 
             const item = stateItem[`${page}`].filter((item) => item.id === +id);
-            const containerPage = $(`#page${page}`);
+            const containerPage = document.querySelector(`#page${page}`);
 
             /*---------- Xóa phần tử ----------*/
             el.addEventListener('click', function (e) {
@@ -143,7 +140,7 @@ const ddjs = (idContainer, listInput) => {
     //* Hàm này sẽ hiển thị các item bên thanh tab
     //**********************
     function renderItem() {
-        const container = $('.main_input');
+        const container = document.querySelector('.main_input');
         container.innerHTML = listInput.map((item) => item.html).join('');
     }
 
@@ -175,7 +172,9 @@ const ddjs = (idContainer, listInput) => {
                 for (let i = 1; i <= doc._pdfInfo.numPages; i++) {
                     doc.getPage(i).then((page) => {
                         if (page) {
-                            var myCanvas = $(`#my_canvas_${i}`);
+                            var myCanvas = document.querySelector(
+                                `#my_canvas_${i}`
+                            );
                             var context = myCanvas.getContext('2d');
                             var viewport = page.getViewport(3);
                             myCanvas.width = viewport.width;
@@ -198,7 +197,7 @@ const ddjs = (idContainer, listInput) => {
     //* Hàm này sẽ xử lí việc người dùng kéo, thả để thêm item vào vùng chứa văn bản
     //**********************
     function handlerDrop() {
-        const listContainer = $$('.main_drop');
+        const listContainer = document.querySelectorAll('.main_drop');
 
         function onDrop(ev, pageCurrent) {
             const { layerX, layerY } = ev;
@@ -220,7 +219,7 @@ const ddjs = (idContainer, listInput) => {
     //* x: tọa độ x của trang, y: tọa độ y của trang (so với document)
     //**********************
     function addItem(index, x, y) {
-        const page = $(`#page${index}`);
+        const page = document.querySelector(`#page${index}`);
 
         const id = new Date().getTime();
         const { clientHeight, clientWidth } = page;
@@ -279,7 +278,7 @@ const ddjs = (idContainer, listInput) => {
             });
 
             /*---------- Thêm item mới vào DOM ----------*/
-            $(`#page${i}`).innerHTML = html.join('');
+            document.querySelector(`#page${i}`).innerHTML = html.join('');
         }
         /*---------- Cập nhật lại các item ----------*/
         getItemDrop();
@@ -290,7 +289,7 @@ const ddjs = (idContainer, listInput) => {
     //* Ví dụ: Chữ ký, ô check box,....
     //**********************
     function handlerCreateItem() {
-        const items = $$('.item');
+        const items = document.querySelectorAll('.item');
 
         function createItem(e) {
             const { type } = e.dataset;
