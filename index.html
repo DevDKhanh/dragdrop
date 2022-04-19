@@ -10,7 +10,7 @@
     </head>
     <body>
         <div class="container">
-            <div class="main_input"></div>
+            <div id="main_input"></div>
             <div id="list_file"></div>
         </div>
     </body>
@@ -61,6 +61,10 @@
         `,
             },
         ];
-        const dragdrop = ddjs('list_file', listInput);
+        const dragdrop = ddjs({
+            idContainer: 'list_file',
+            idMainInput: 'main_input',
+            listInput: listInput,
+        });
     </script>
 </html>

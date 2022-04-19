@@ -1,6 +1,6 @@
 'use strict';
-const ddjs = (idContainer, listInput) => {
-    const mainList = document.querySelector(`#${idContainer}`);
+const ddjs = ({ idContainer, idMainInput, listInput }) => {
+    const mainList = document.getElementById(`${idContainer}`);
 
     let infoItem = null;
     let isResize = false;
@@ -140,7 +140,7 @@ const ddjs = (idContainer, listInput) => {
     //* Hàm này sẽ hiển thị các item bên thanh tab
     //**********************
     function renderItem() {
-        const container = document.querySelector('.main_input');
+        const container = document.getElementById(`${idMainInput}`);
         container.innerHTML = listInput.map((item) => item.html).join('');
     }
 
