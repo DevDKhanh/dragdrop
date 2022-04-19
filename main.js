@@ -1,12 +1,9 @@
 'use strict';
-
-import { list, listInput } from './mock.js';
-
-(() => {
+const ddjs = (idContainer, listInput) => {
     const $ = document.querySelector.bind(document);
     const $$ = document.querySelectorAll.bind(document);
 
-    const mainList = $('#list_file');
+    const mainList = $(`#${idContainer}`);
 
     let infoItem = null;
     let isResize = false;
@@ -309,10 +306,6 @@ import { list, listInput } from './mock.js';
         );
     }
 
-    setInterval(() => {
-        console.log(stateItem);
-    }, 2000);
-
     //**********************
     //* Site function
     //**********************
@@ -373,4 +366,13 @@ import { list, listInput } from './mock.js';
     }
 
     start();
-})();
+
+    return {
+        getState: () => {
+            return stateItem;
+        },
+        getItemPage: (numPage) => {
+            return stateItem[numPage];
+        },
+    };
+};
