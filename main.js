@@ -155,12 +155,13 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
                     htmls += `<div
                     ondragover="return false"
                     class="drop"
+                    data-index="${i}"
                     style="width: 700px; position: relative"
                 >
                     <canvas id="my_canvas_${i}"></canvas>
                     <div
                         ondragover="return false"
-                        id="page${i}"
+                         id="page${i}"
                         class="main_drop"
                         data-index="${i}"
                         style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;" >
@@ -197,19 +198,19 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
     //* Hàm này sẽ xử lí việc người dùng kéo, thả để thêm item vào vùng chứa văn bản
     //**********************
     function handlerDrop() {
-        const listContainer = document.querySelectorAll('.main_drop');
+        const listDrop = document.querySelectorAll('.drop');
 
-        function onDrop(ev, pageCurrent) {
-            const { layerX, layerY } = ev;
-
-            addItem(pageCurrent, layerX, layerY);
+        function onDrop(ev, el, pageCurrent) {
+            const { pageX, pageY } = ev;
+            const { offsetLeft, offsetTop } = el;
+            addItem(pageCurrent, pageX - offsetLeft, pageY - offsetTop);
             ev.stopPropagation();
             return false;
         }
 
-        listContainer.forEach((el) => {
+        listDrop.forEach((el) => {
             const pageCurrent = el.dataset.index;
-            el.addEventListener('drop', (ev) => onDrop(ev, pageCurrent));
+            el.addEventListener('drop', (ev) => onDrop(ev, el, pageCurrent));
         });
     }
 
