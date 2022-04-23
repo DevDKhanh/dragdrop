@@ -9,7 +9,7 @@ const ddjs = ({
     const mainList = document.getElementById(`${idContainer}`);
     const previewContainer = document.getElementById(`${idPreview}`);
 
-    let infoItem = null;
+    let infoItem = null; //==> Đối tượng chứa thông tin được thêm vào vùng chứa văn bản
     let isResize = false;
     let stateItem = {}; //==> Chứa các thông tin các phần tử khi được thêm vào văn bản
 
@@ -28,7 +28,7 @@ const ddjs = ({
             el.onclick = function (e) {
                 if (e.target.matches('.close')) {
                     const newSate = stateItem[`${page}`].filter(
-                        (item) => item.id !== +id
+                        (item) => item.id !== id
                     );
                     /*---------- Update item---------*/
                     updateState(newSate, page);
@@ -43,7 +43,7 @@ const ddjs = ({
 
             el.onmousedown = function (e) {
                 const item = stateItem[`${page}`].filter(
-                    (item) => item.id === +id
+                    (item) => item.id === id
                 );
 
                 document.onmouseup = null;
@@ -70,13 +70,13 @@ const ddjs = ({
                 }
 
                 /*---------- update text content, html cập nhật state ----------*/
-                document.onkeyup = function (e) {
-                    const el = document.getElementById(id);
-                    const content = el.outerText;
-                    const innerHTML = el.innerHTML;
+                el.onkeyup = function (e) {
+                    const elTarget = document.getElementById(id);
+                    const content = elTarget.outerText;
+                    const innerHTML = elTarget.innerHTML;
 
                     const newSate = stateItem[`${page}`].map((item) => {
-                        if (item.id === +id) {
+                        if (item.id === id) {
                             return { ...item, content, htmlInsert: innerHTML };
                         }
 
@@ -107,7 +107,7 @@ const ddjs = ({
                         el.style.top = Y + 'px';
 
                         const newSate = stateItem[`${page}`].map((item) => {
-                            if (item.id === +id) {
+                            if (item.id === id) {
                                 return { ...item, X, Y };
                             }
                             return item;
@@ -149,7 +149,7 @@ const ddjs = ({
                             el.style.width = WIDTH + 'px';
                             el.style.height = HEIGHT + 'px';
                             const newSate = stateItem[`${page}`].map((item) => {
-                                if (item.id === +id) {
+                                if (item.id === id) {
                                     return {
                                         ...item,
                                         width: WIDTH,
@@ -164,9 +164,11 @@ const ddjs = ({
                 };
 
                 /*---------- Hủy event ----------*/
-                document.onmouseup = function () {
+                document.onmouseup = function (e) {
                     /*---------- Hiển thị các ô input ----------*/
-                    renderPreview({ type, page, id });
+                    if (!e.target.matches('.groupInput input')) {
+                        renderPreview({ type, page, id });
+                    }
 
                     el.style.zIndex = '0';
 
@@ -294,7 +296,7 @@ const ddjs = ({
     //* Lấy thông số của item
     //**********************
     function getInfoItem({ id, page }) {
-        const info = stateItem[`${page}`].filter((item) => item.id === +id)[0];
+        const info = stateItem[`${page}`].filter((item) => item.id === id)[0];
 
         const dataItem = {
             x: info.X,
@@ -304,6 +306,7 @@ const ddjs = ({
             content: info.content,
         };
 
+        handleChangeValue({ id, page });
         displayInfoItem({ dataItem });
     }
 
@@ -322,6 +325,85 @@ const ddjs = ({
         if (inputWidth) inputWidth.value = dataItem.width;
         if (inputHeight) inputHeight.value = dataItem.height;
         if (inputContent) inputContent.value = dataItem.content;
+    }
+
+    //**********************
+    //* Hiển thị thông tin của item lên ô input
+    //**********************
+    function handleChangeValue({ id, page }) {
+        /********** Thông số của item **********/
+        const pageEl = document.querySelector(`#page${page}`);
+        const infoItem = getInfoItemSate(id, page);
+        const { clientHeight, clientWidth } = pageEl;
+        const { width, height, X, Y, type } = infoItem;
+        const infoItemInitial = getInfoItemInitial(type);
+
+        /********** Get element **********/
+        const elEditor = document.querySelector(`#${id} .editor`);
+        const inputX = document.getElementById('inputX');
+        const inputY = document.getElementById('inputY');
+        const inputWidth = document.getElementById('inputWidth');
+        const inputHeight = document.getElementById('inputHeight');
+        const inputContent = document.getElementById('inputContent');
+
+        if (inputX) {
+            inputX.onchange = function (e) {
+                const left = +e.target.value;
+                const X = getXY(left, clientWidth - width);
+                reRenderItem({ id, page, key: 'X', value: X });
+            };
+        }
+
+        if (inputY) {
+            inputY.onchange = function (e) {
+                const top = +e.target.value;
+                const Y = getXY(top, clientHeight - height);
+                reRenderItem({ id, page, key: 'Y', value: Y });
+            };
+        }
+
+        if (inputWidth) {
+            inputWidth.onchange = function (e) {
+                const width = checkMaxWidthHeight(
+                    X,
+                    +e.target.value,
+                    clientWidth,
+                    infoItemInitial.minWidth
+                );
+                reRenderItem({ id, page, key: 'width', value: width });
+            };
+        }
+
+        if (inputHeight) {
+            inputHeight.onchange = function (e) {
+                const height = checkMaxWidthHeight(
+                    Y,
+                    +e.target.value,
+                    clientHeight,
+                    infoItemInitial.minHeight
+                );
+                reRenderItem({ id, page, key: 'height', value: height });
+            };
+        }
+
+        if (inputContent) {
+            inputContent.onchange = function (e) {
+                elEditor.innerText = e.target.value;
+                reRenderItem({
+                    id,
+                    page,
+                    key: 'content',
+                    value: e.target.value,
+                    isReRender: false,
+                });
+                reRenderItem({
+                    id,
+                    page,
+                    key: 'htmlInsert',
+                    value: elEditor.outerHTML,
+                });
+            };
+        }
     }
 
     //**********************
@@ -371,7 +453,7 @@ const ddjs = ({
 
         !stateItem[`${index}`] ? (stateItem[`${index}`] = []) : null;
         stateItem[`${index}`].push({
-            id,
+            id: 's' + id,
             X,
             Y,
             type,
@@ -413,21 +495,42 @@ const ddjs = ({
         stateItem[`${page}`] = newSate;
     }
 
+    function reRenderItem({ id, page, key, value, isReRender = true }) {
+        const newSate = stateItem[`${page}`].map((item) => {
+            if (item.id === id) {
+                return { ...item, [key]: value };
+            }
+            return item;
+        });
+
+        updateState(newSate, page);
+        isReRender && renderItemOnPage();
+    }
+
     function doDrag(e, startSize, start, minSize, maxSize, coordinates) {
         const width = startSize.width + e.clientX - start.x;
         const height = startSize.height + e.clientY - start.y;
 
-        const WIDTH =
-            coordinates.left + width < maxSize.maxWidth
-                ? getWidthHeight(minSize.minWidth, width)
-                : width - coordinates.left - (width - maxSize.maxWidth);
+        const WIDTH = checkMaxWidthHeight(
+            coordinates.left,
+            width,
+            maxSize.maxWidth,
+            minSize.minWidth
+        );
 
-        const HEIGHT =
-            coordinates.top + height < maxSize.maxHeight
-                ? getWidthHeight(minSize.minHeight, height)
-                : height - coordinates.top - (height - maxSize.maxHeight);
-
+        const HEIGHT = checkMaxWidthHeight(
+            coordinates.top,
+            height,
+            maxSize.maxHeight,
+            minSize.minHeight
+        );
         return { WIDTH, HEIGHT };
+    }
+
+    function checkMaxWidthHeight(coordinates, sizeCurrent, maxSize, minSize) {
+        return coordinates + sizeCurrent < maxSize
+            ? getWidthHeight(minSize, sizeCurrent)
+            : sizeCurrent - coordinates - (sizeCurrent - maxSize);
     }
 
     function getWidthHeight(minSize, currentSize) {
@@ -448,6 +551,16 @@ const ddjs = ({
                 return coordinates;
             }
         }
+    }
+
+    function getInfoItemSate(id, page) {
+        const item = stateItem[`${page}`].filter((item) => item.id === id)[0];
+        return item;
+    }
+
+    function getInfoItemInitial(type) {
+        const item = listInput.filter((item) => item.type === type)[0];
+        return item;
     }
 
     async function start() {
