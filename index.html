@@ -12,6 +12,7 @@
         <div class="container">
             <div id="main_input"></div>
             <div id="list_file"></div>
+            <div id="preview"></div>
         </div>
     </body>
     <script src="./main.js"></script>
@@ -24,6 +25,7 @@
                 defaultWidth: 150,
                 defaultHeight: 80,
                 style: 'style_1',
+                defaultContent: 'Hello',
                 html: `
             <div
                 draggable="true"
@@ -44,6 +46,7 @@
                 defaultWidth: 70,
                 defaultHeight: 70,
                 style: 'style_2',
+                defaultContent: '',
                 html: `
         <img
             draggable="true"
@@ -61,9 +64,61 @@
         `,
             },
         ];
+
+        const listPreview = [
+            {
+                type: '1',
+                htmls: `
+            <div class="groupInput">
+                    <label>Toa do X</label>
+                    <input type="number" id="inputX" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Toa do Y</label>
+                    <input type="number" id="inputY" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Chieu cao</label>
+                    <input type="number" id="inputHeight" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Chieu rong</label>
+                    <input type="number" id="inputWidth" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Noi dung</label>
+                    <input type="text" id="inputContent" />
+                </div>
+            `,
+            },
+            {
+                type: '2',
+                htmls: `
+            <div class="groupInput">
+                    <label>Toa do X</label>
+                    <input type="number" id="inputX" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Toa do Y</label>
+                    <input type="number" id="inputY" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Chieu cao</label>
+                    <input type="number" id="inputHeight" step="0.5" />
+                </div>
+                <div class="groupInput">
+                    <label>Chieu rong</label>
+                    <input type="number" id="inputWidth" step="0.5" />
+                </div>
+            `,
+            },
+        ];
+
         const dragdrop = ddjs({
             idContainer: 'list_file',
             idMainInput: 'main_input',
+            idPreview: 'preview',
+            listPreviewInput: listPreview,
             listInput: listInput,
         });
     </script>

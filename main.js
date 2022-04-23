@@ -1,6 +1,13 @@
 'use strict';
-const ddjs = ({ idContainer, idMainInput, listInput }) => {
+const ddjs = ({
+    idContainer = '',
+    idMainInput = '',
+    idPreview = '',
+    listInput = [],
+    listPreviewInput = [],
+}) => {
     const mainList = document.getElementById(`${idContainer}`);
+    const previewContainer = document.getElementById(`${idPreview}`);
 
     let infoItem = null;
     let isResize = false;
@@ -14,22 +21,32 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
         const dropItems = document.querySelectorAll('.item_drop');
 
         dropItems.forEach((el) => {
-            const { page, id } = el.dataset;
-
-            const item = stateItem[`${page}`].filter((item) => item.id === +id);
+            const { page, id, type } = el.dataset;
             const containerPage = document.querySelector(`#page${page}`);
 
             /*---------- Xóa phần tử ----------*/
-            el.addEventListener('click', function (e) {
+            el.onclick = function (e) {
                 if (e.target.matches('.close')) {
                     const newSate = stateItem[`${page}`].filter(
                         (item) => item.id !== +id
                     );
+                    /*---------- Update item---------*/
                     updateState(newSate, page);
-                }
-            });
 
-            el.addEventListener('mousedown', function (e) {
+                    /*---------- Render lại item---------*/
+                    renderItemOnPage();
+
+                    /*---------- Clean preview ----------*/
+                    previewContainer.innerHTML = '';
+                }
+            };
+
+            el.onmousedown = function (e) {
+                const item = stateItem[`${page}`].filter(
+                    (item) => item.id === +id
+                );
+
+                document.onmouseup = null;
                 el.style.zIndex = '10';
 
                 const maxX = containerPage.offsetWidth;
@@ -52,6 +69,28 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
                     isResize = false;
                 }
 
+                /*---------- update text content, html cập nhật state ----------*/
+                document.onkeyup = function (e) {
+                    const el = document.getElementById(id);
+                    const content = el.outerText;
+                    const innerHTML = el.innerHTML;
+
+                    const newSate = stateItem[`${page}`].map((item) => {
+                        if (item.id === +id) {
+                            return { ...item, content, htmlInsert: innerHTML };
+                        }
+
+                        return item;
+                    });
+
+                    /*---------- Update item---------*/
+                    updateState(newSate, page);
+
+                    /*---------- Hiển thị các ô input ----------*/
+                    renderPreview({ type, page, id });
+                };
+
+                /*---------- update vị trí của item cập nhật state ----------*/
                 document.onmousemove = function (e) {
                     /*---------- Vị trí phần tử ----------*/
                     const dx = mouseX - e.clientX;
@@ -125,15 +164,30 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
                 };
 
                 /*---------- Hủy event ----------*/
-                document.addEventListener('mouseup', function () {
+                document.onmouseup = function () {
+                    /*---------- Hiển thị các ô input ----------*/
+                    renderPreview({ type, page, id });
+
                     el.style.zIndex = '0';
+
                     document.onmousemove = null;
                     if (el.matches('.show')) {
                         el.classList.remove('show');
                     }
-                });
-            });
+                };
+            };
         });
+    }
+
+    //**********************
+    //* Render preview input
+    //**********************
+    function renderPreview({ type, id, page }) {
+        previewContainer.innerHTML = listPreviewInput.filter(
+            (item) => item.type === type
+        )[0].htmls;
+
+        getInfoItem({ id, page });
     }
 
     //**********************
@@ -195,6 +249,82 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
     }
 
     //**********************
+    //* Hiển thị item trên trang văn bản
+    //**********************
+    function renderItemOnPage() {
+        for (let i in stateItem) {
+            const html = stateItem[i].map((item) => {
+                /*---------- Tạo thẻ mới để chứa item ----------*/
+                return `
+                    <div 
+                        class="${item.style} item_drop" 
+                        data-id="${item.id}" 
+                        data-page="${item.pageNumber}"
+                        data-type="${item.type}"
+                        ondragover="return true"
+                        style="
+                            width: ${item.width}px; 
+                            height: ${item.height}px;
+                            left: ${item.X}px;
+                            top: ${item.Y}px;
+                        "
+                    >
+                        <div class="resize"></div>
+                        <div class="close">X</div>
+                        <svg
+                            class="resize-button"
+                            height="10" 
+                            width="10"
+                        >
+                        </svg>
+                        <div id="${item.id}" style="width: 100%; height: 100%;">
+                            ${item.htmlInsert}
+                        </div>
+                    </div>`;
+            });
+
+            /*---------- Thêm item mới vào DOM ----------*/
+            document.querySelector(`#page${i}`).innerHTML = html.join('');
+        }
+        /*---------- Cập nhật lại các item ----------*/
+        getItemDrop();
+    }
+
+    //**********************
+    //* Lấy thông số của item
+    //**********************
+    function getInfoItem({ id, page }) {
+        const info = stateItem[`${page}`].filter((item) => item.id === +id)[0];
+
+        const dataItem = {
+            x: info.X,
+            y: info.Y,
+            height: info.height,
+            width: info.width,
+            content: info.content,
+        };
+
+        displayInfoItem({ dataItem });
+    }
+
+    //**********************
+    //* Hiển thị thông tin của item lên ô input
+    //**********************
+    function displayInfoItem({ dataItem }) {
+        const inputX = document.getElementById('inputX');
+        const inputY = document.getElementById('inputY');
+        const inputWidth = document.getElementById('inputWidth');
+        const inputHeight = document.getElementById('inputHeight');
+        const inputContent = document.getElementById('inputContent');
+
+        if (inputX) inputX.value = dataItem.x;
+        if (inputY) inputY.value = dataItem.y;
+        if (inputWidth) inputWidth.value = dataItem.width;
+        if (inputHeight) inputHeight.value = dataItem.height;
+        if (inputContent) inputContent.value = dataItem.content;
+    }
+
+    //**********************
     //* Hàm này sẽ xử lí việc người dùng kéo, thả để thêm item vào vùng chứa văn bản
     //**********************
     function handlerDrop() {
@@ -224,8 +354,14 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
 
         const id = new Date().getTime();
         const { clientHeight, clientWidth } = page;
-        const { type, style, htmlInsert, defaultWidth, defaultHeight } =
-            infoItem;
+        const {
+            type,
+            style,
+            htmlInsert,
+            defaultWidth,
+            defaultHeight,
+            defaultContent,
+        } = infoItem;
 
         const top = y - defaultHeight / 2;
         const left = x - defaultWidth / 2;
@@ -241,48 +377,12 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
             type,
             width: defaultWidth,
             height: defaultHeight,
+            content: defaultContent,
             pageNumber: index,
             htmlInsert,
             style,
         });
         renderItemOnPage();
-    }
-
-    function renderItemOnPage() {
-        for (let i in stateItem) {
-            const html = stateItem[i].map((item) => {
-                /*---------- Tạo thẻ mới để chứa item ----------*/
-                return `
-                    <div 
-                        class="${item.style} item_drop" 
-                        data-id="${item.id}" 
-                        data-page="${item.pageNumber}"
-                        data-type="${item.type}"
-                        ondragover="return true"
-                        style="
-                            width: ${item.width}px; 
-                            height: ${item.height}px;
-                            left: ${item.X}px;
-                            top: ${item.Y}px;
-                        "
-                    >
-                        <div class="resize"></div>
-                        <div class="close">X</div>
-                        <svg
-                            class="resize-button"
-                            height="10" 
-                            width="10"
-                        >
-                        </svg>
-                        ${item.htmlInsert}
-                    </div>`;
-            });
-
-            /*---------- Thêm item mới vào DOM ----------*/
-            document.querySelector(`#page${i}`).innerHTML = html.join('');
-        }
-        /*---------- Cập nhật lại các item ----------*/
-        getItemDrop();
     }
 
     //**********************
@@ -311,7 +411,6 @@ const ddjs = ({ idContainer, idMainInput, listInput }) => {
     //**********************
     function updateState(newSate, page) {
         stateItem[`${page}`] = newSate;
-        renderItemOnPage();
     }
 
     function doDrag(e, startSize, start, minSize, maxSize, coordinates) {
