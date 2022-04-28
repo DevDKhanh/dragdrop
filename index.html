@@ -6,7 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Document</title>
         <link rel="stylesheet" href="./style.css" />
-        <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.0.943/build/pdf.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -14,19 +13,19 @@
             <div id="list_file"></div>
             <div id="preview"></div>
         </div>
-    </body>
-    <script src="./main.js"></script>
-    <script>
-        const listInput = [
-            {
-                type: '1',
-                minWidth: 150,
-                minHeight: 80,
-                defaultWidth: 150,
-                defaultHeight: 80,
-                style: 'style_1',
-                defaultContent: 'Hello',
-                html: `
+        <script src="./pdf.min.js"></script>
+        <script src="./main.js"></script>
+        <script>
+            const listInput = [
+                {
+                    type: '1',
+                    minWidth: 150,
+                    minHeight: 80,
+                    defaultWidth: 150,
+                    defaultHeight: 80,
+                    style: 'style_1',
+                    defaultContent: 'Hello',
+                    html: `
             <div
                 draggable="true"
                 class="item style_1"
@@ -35,26 +34,26 @@
                 Hello
             </div>
         `,
-                htmlInsert: `
+                    htmlInsert: `
             <div class="editor style_1 item_main_drop" contenteditable="true" data-type="1">Hello</div>
         `,
-            },
-            {
-                type: '2',
-                minWidth: 50,
-                minHeight: 50,
-                defaultWidth: 70,
-                defaultHeight: 70,
-                style: 'style_2',
-                defaultContent: '',
-                html: `
+                },
+                {
+                    type: '2',
+                    minWidth: 50,
+                    minHeight: 50,
+                    defaultWidth: 70,
+                    defaultHeight: 70,
+                    style: 'style_2',
+                    defaultContent: '',
+                    html: `
         <img
             draggable="true"
             class="item style_2"
             data-type="2"
             src="https://khacdaunhanh247.com/upload/hinhanh/16072018-5716.png"
         /> `,
-                htmlInsert: `
+                    htmlInsert: `
             <img
                 draggable="true"
                 class="item style_2"
@@ -62,13 +61,13 @@
                 src="https://khacdaunhanh247.com/upload/hinhanh/16072018-5716.png"
             />
         `,
-            },
-        ];
+                },
+            ];
 
-        const listPreview = [
-            {
-                type: '1',
-                htmls: `
+            const listPreview = [
+                {
+                    type: '1',
+                    htmls: `
                 <div class="groupInput">
                     <label>Toa do X</label>
                     <input type="number" id="inputX" step="0.5" />
@@ -90,10 +89,10 @@
                     <input type="text" id="inputContent" />
                 </div>
             `,
-            },
-            {
-                type: '2',
-                htmls: `
+                },
+                {
+                    type: '2',
+                    htmls: `
                 <div class="groupInput">
                     <label>Toa do X</label>
                     <input type="number" id="inputX" step="0.5" />
@@ -111,15 +110,16 @@
                     <input type="number" id="inputWidth" step="0.5" />
                 </div>
             `,
-            },
-        ];
+                },
+            ];
 
-        const dragdrop = ddjs({
-            idContainer: 'list_file',
-            idMainInput: 'main_input',
-            idPreview: 'preview',
-            listPreviewInput: listPreview,
-            listInput: listInput,
-        });
-    </script>
+            const dragdrop = ddjs({
+                idContainer: 'list_file',
+                idMainInput: 'main_input',
+                idPreview: 'preview',
+                listPreviewInput: listPreview,
+                listInput: listInput,
+            });
+        </script>
+    </body>
 </html>
